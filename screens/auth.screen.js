@@ -5,7 +5,7 @@ import {Text, View, Button, TextInput, ScrollView} from "react-native";
 function AuthScreen({ navigation }) {
 
     const [username, onChangeUsername] = React.useState('Nom d\'utilisateur');
-    const [email, onChangeEmail] = React.useState('Email);
+    const [email, onChangeEmail] = React.useState('Email');
     const [password, onChangePassword] = React.useState('Mot de passe');
     const [passwordConfirmed, onChangePasswordConfirmed] = React.useState('Confirmer le mot de passe');
 
