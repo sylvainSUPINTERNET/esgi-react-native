@@ -96,13 +96,13 @@ function AuthScreen({navigation}) {
                         setIsButtonEnabled(false); // not disable
                         console.log("ICI")
                         ToastAndroid.showWithGravity(
-                            "Erreur réseaux, veuillez réessayer",
-                            ToastAndroid.SHORT,
+                            "Aucun utilisateur pour ces identifiants",
+                            ToastAndroid.LONG,
                             ToastAndroid.CENTER
                         );
                     }
 
-                } else if(res.status === 400) {
+                } else if(res.status === 400 || res.status === 401) {
                     setIsInputLoading(true); // editable
                     setIsButtonEnabled(false); // not disable
                     console.log("LA")
@@ -130,8 +130,8 @@ function AuthScreen({navigation}) {
                 setIsInputLoading(true); // editable
                 setIsButtonEnabled(false); // not disable
                 ToastAndroid.showWithGravity(
-                    "Erreur réseaux, veuillez réessayer",
-                    ToastAndroid.SHORT,
+                    "Aucun utilisateur pour ces identifiants",
+                    ToastAndroid.LONG,
                     ToastAndroid.CENTER
                 );
             }

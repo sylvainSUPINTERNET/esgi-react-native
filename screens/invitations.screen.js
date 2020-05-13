@@ -1,7 +1,7 @@
 import React from "react";
 
 import {Text, View, ScrollView, FlatList, AsyncStorage, ToastAndroid} from "react-native";
-import {Appbar, List, Button, Divider} from "react-native-paper";
+import {Appbar, List, Button, Divider,Card} from "react-native-paper";
 import axios from "axios";
 import * as config from "../api/config";
 
@@ -82,7 +82,7 @@ function InvitationsScreen({navigation, route}) {
                 console.log(resp.status !== 200);
 
                 ToastAndroid.showWithGravity(
-                    `Invitation envoyé @${email}`,
+                    `Invitation envoyé à ${email}`,
                     ToastAndroid.LONG,
                     ToastAndroid.CENTER
                 );
@@ -106,17 +106,19 @@ function InvitationsScreen({navigation, route}) {
 
     function Item({email}) {
         return (
-            <View style={{margin: 15, padding: 10}}>
-
+            <Card style={{margin: 15, padding: 10}}>
+                <Card.Content>
                 <List.Item
                     title={email}
-                    left={props => <List.Icon {...props} icon="rocket"/>}
+                    left={props => <List.Icon {...props} icon="account-arrow-right"/>}
                 />
 
-                <Button icon={"message"} mode="contained" onPress={() => {
+                <Button mode="contained" onPress={() => {
                     sendInvit(email)
                 }} disabled={false}>Inviter</Button>
-            </View>
+
+                </Card.Content>
+            </Card>
         );
     }
 

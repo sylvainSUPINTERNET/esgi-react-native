@@ -20,6 +20,7 @@ import axios from 'axios';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {isLogged} from "./authCheck";
 import * as config from "../api/config";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 function HomeScreen({route, navigation}) {
 
@@ -60,8 +61,21 @@ function HomeScreen({route, navigation}) {
 
     function Recruteur() {
         return <Tab.Navigator>
-            <Tab.Screen name="Ajouter une offre" component={HomeRecruteurScreen}/>
-            <Tab.Screen name="Mes offres" component={RecruteurOfferScreen}/>
+            <Tab.Screen name="Ajouter une offre" component={HomeRecruteurScreen}
+                        options={{
+                            tabBarLabel: 'Ajouter mon offre',
+                            tabBarIcon: ({ color, size }) => (
+                                <MaterialCommunityIcons name="book" color={color} size={size} />
+                            ),
+                        }}
+            />
+            <Tab.Screen name="Mes offres" component={RecruteurOfferScreen}
+                        options={{
+                            tabBarLabel: 'Mes offres',
+                            tabBarIcon: ({ color, size }) => (
+                                <MaterialCommunityIcons name="view-compact" color={color} size={size} />
+                            ),
+                        }}/>
         </Tab.Navigator>
     }
 
@@ -247,7 +261,8 @@ function HomeScreen({route, navigation}) {
                     />
                 </Appbar.Header>
                 <ScrollView>
-                    <View style={{paddingTop: 15, margin: 30}}>
+                    <Card style={{paddingTop: 15, margin: 30}}>
+                        <Card.Content>
                         <TextInput style={{padding: 5, margin: 10}}
                                    label='Nom'
                                    value={name}
@@ -310,7 +325,7 @@ function HomeScreen({route, navigation}) {
                         >{workingPlaceErrorErrorMsg}</HelperText>
                         <DatePicker
                             style={{width: 300}}
-                            date={date}
+                            date={startAt}
                             mode="date"
                             placeholder="select date"
                             format="YYYY-MM-DD"
@@ -319,16 +334,16 @@ function HomeScreen({route, navigation}) {
                             customStyles={{
                                 dateIcon: {
                                     position: 'absolute',
-                                    left: 0,
+                                    left: 25,
                                     top: 4,
                                     marginLeft: 0
                                 },
                                 dateInput: {
-                                    marginLeft: 36
+                                    marginLeft: 70
                                 }
                             }}
                             onDateChange={(date) => {
-                                onStartAtChange(date)
+                                onStartAtChange(date);
                             }}
                         />
 
@@ -336,7 +351,8 @@ function HomeScreen({route, navigation}) {
                                 disabled={btnDisabled}>
                             Confirmer
                         </Button>
-                    </View>
+                        </Card.Content>
+                    </Card>
                 </ScrollView>
             </ScrollView>
         );
@@ -365,8 +381,20 @@ function HomeScreen({route, navigation}) {
 
     function Candidat() {
         return <Tab.Navigator>
-            <Tab.Screen name="Invitation" component={HomeCandidatScreen}/>
-            <Tab.Screen name="Mes offres" component={CandidatOfferScreen}/>
+            <Tab.Screen name="Invitation" component={HomeCandidatScreen}
+                        options={{
+                            tabBarLabel: 'Code',
+                            tabBarIcon: ({ color, size }) => (
+                                <MaterialCommunityIcons name="qrcode" color={color} size={size} />
+                            ),
+                        }}/>
+            <Tab.Screen name="Mes offres" component={CandidatOfferScreen}
+                        options={{
+                            tabBarLabel: 'Mes offres',
+                            tabBarIcon: ({ color, size }) => (
+                                <MaterialCommunityIcons name="wallet-giftcard" color={color} size={size} />
+                            ),
+                        }}/>
         </Tab.Navigator>
     }
 
@@ -399,6 +427,8 @@ function HomeScreen({route, navigation}) {
 
                         if (invitByToken.status === 200 || invitByToken.status === 201) {
                             if (invitByToken.data["hydra:totalItems"] === 0) {
+                                onSetLoading(false);
+                                setDisabled(false);
                                 ToastAndroid.showWithGravity(
                                     "Code invalide",
                                     ToastAndroid.SHORT,
@@ -449,10 +479,15 @@ function HomeScreen({route, navigation}) {
                                                 'Content-type': 'application/json'
                                             }
                                         });
+                                        console.log("delete iv -> ",deleteInv)
+                                        console.log("delete status", deleteInv.status)
 
-                                        if(deleteInv.status === 200 || deleteInv.status === 201) {
+                                        if(deleteInv.status === 200 || deleteInv.status === 201 || deleteInv.status === 204) {
                                             navigation.navigate('Mes offres')
                                         } else {
+                                            onSetLoading(false);
+                                            setDisabled(false);
+                                            console.log("3")
                                             ToastAndroid.showWithGravity(
                                                 "Une erreur est survenue. Veuillez réessayer.",
                                                 ToastAndroid.SHORT,
@@ -461,6 +496,9 @@ function HomeScreen({route, navigation}) {
                                         }
 
                                     } else {
+                                        console.log("2")
+                                        onSetLoading(false);
+                                        setDisabled(false);
                                         ToastAndroid.showWithGravity(
                                             "Une erreur est survenue. Veuillez réessayer.",
                                             ToastAndroid.SHORT,
@@ -468,6 +506,9 @@ function HomeScreen({route, navigation}) {
                                         );
                                     }
                                 } else {
+                                    onSetLoading(false);
+                                    setDisabled(false);
+                                    console.log("1")
                                     ToastAndroid.showWithGravity(
                                         "Une erreur est survenue. Veuillez réessayer.",
                                         ToastAndroid.SHORT,
@@ -476,6 +517,9 @@ function HomeScreen({route, navigation}) {
                                 }
                             }
                         } else {
+                            onSetLoading(false);
+                            setDisabled(false);
+                            console.log("0")
                             ToastAndroid.showWithGravity(
                                 "Code invalide",
                                 ToastAndroid.SHORT,
@@ -627,27 +671,52 @@ function HomeScreen({route, navigation}) {
             );
         }
 
-        return (
-            <ScrollView>
-                <Appbar.Header>
-                    <Appbar.Action icon="menu" onPress={() => {
-                        navigation.openDrawer()
-                    }}/>
 
-                    <Appbar.Content
-                        title="Recruiter"
-                        subtitle="L'application pour les recruteurs !"
-                    />
-                </Appbar.Header>
-                <View style={{paddingTop: 15, margin: 30}}>
-                    <FlatList
-                        data={appliesList}
-                        renderItem={({item}) => <Item data={item}/>}
-                        keyExtractor={item => item.id}
-                    />
-                </View>
-            </ScrollView>
-        );
+            if(appliesList.length === 0) {
+                return (
+                    <ScrollView>
+                        <Appbar.Header>
+                            <Appbar.Action icon="menu" onPress={() => {
+                                navigation.openDrawer()
+                            }}/>
+
+                            <Appbar.Content
+                                title="Recruiter"
+                                subtitle="L'application pour les recruteurs !"
+                            />
+                        </Appbar.Header>
+                        <View style={{
+                            marginTop: 200, alignItems: 'center',
+                            flex: 1,
+                            justifyContent: 'center'
+                        }}>
+                            <Text>Pas de candidatures pour le moment.</Text>
+                        </View>
+                    </ScrollView>
+                )
+            } else {
+                return (
+                    <ScrollView>
+                        <Appbar.Header>
+                            <Appbar.Action icon="menu" onPress={() => {
+                                navigation.openDrawer()
+                            }}/>
+
+                            <Appbar.Content
+                                title="Recruiter"
+                                subtitle="L'application pour les recruteurs !"
+                            />
+                        </Appbar.Header>
+                        <View style={{paddingTop: 15, margin: 30}}>
+                            <FlatList
+                                data={appliesList}
+                                renderItem={({item}) => <Item data={item}/>}
+                                keyExtractor={item => item.id}
+                            />
+                        </View>
+                    </ScrollView>
+                )
+            }
     }
 
 
