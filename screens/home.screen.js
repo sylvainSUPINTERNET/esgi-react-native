@@ -1,9 +1,20 @@
 import React from "react";
 
 import {Text, View, ScrollView, ToastAndroid} from "react-native";
-import {Appbar, Button, TextInput, Divider, Checkbox, HelperText, Card, Title, Paragraph} from 'react-native-paper';
+import {
+    Appbar,
+    Button,
+    TextInput,
+    Divider,
+    Checkbox,
+    HelperText,
+    Card,
+    Title,
+    Paragraph,
+    Drawer
+} from 'react-native-paper';
 import DatePicker from 'react-native-datepicker'
-import {AsyncStorage} from 'react-native';
+import {AsyncStorage, FlatList} from 'react-native';
 import axios from 'axios';
 
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -32,9 +43,9 @@ function HomeScreen({route, navigation}) {
     }, []);
      */
 
-    React.useEffect( () => {
+    React.useEffect(() => {
 
-        if(route.params) {
+        if (route.params) {
             const {roles} = route.params
             console.log(roles);
             setUserRole(roles)
@@ -45,7 +56,6 @@ function HomeScreen({route, navigation}) {
     });
 
     const Tab = createBottomTabNavigator();
-
 
 
     function Recruteur() {
@@ -88,23 +98,21 @@ function HomeScreen({route, navigation}) {
         const [date, setDate] = React.useState(today())
 
 
-        function today(){
+        function today() {
             var today = new Date();
             var dd = today.getDate();
 
-            var mm = today.getMonth()+1;
+            var mm = today.getMonth() + 1;
             var yyyy = today.getFullYear();
-            if(dd<10)
-            {
-                dd='0'+dd;
+            if (dd < 10) {
+                dd = '0' + dd;
             }
 
-            if(mm<10)
-            {
-                mm='0'+mm;
+            if (mm < 10) {
+                mm = '0' + mm;
             }
 
-            return today = yyyy+'-'+mm+'-'+dd;
+            return today = yyyy + '-' + mm + '-' + dd;
 
         }
 
@@ -122,7 +130,7 @@ function HomeScreen({route, navigation}) {
 
             let isReady = true;
 
-            if(!payload.name || payload.name.trim() === "") {
+            if (!payload.name || payload.name.trim() === "") {
                 onNameChangeError(true);
                 onNameChangeErrorMsg("Nom invalide")
                 isReady = false;
@@ -131,7 +139,7 @@ function HomeScreen({route, navigation}) {
                 onNameChangeErrorMsg("")
             }
 
-            if(!payload.description || payload.description.trim() === "") {
+            if (!payload.description || payload.description.trim() === "") {
                 onDescriptionError(true);
                 onDescriptionChangeErrorMsg("Description offre invalide")
                 isReady = false;
@@ -140,7 +148,7 @@ function HomeScreen({route, navigation}) {
                 onDescriptionChangeErrorMsg("")
             }
 
-            if(!payload.companyDescription || payload.companyDescription.trim() === "") {
+            if (!payload.companyDescription || payload.companyDescription.trim() === "") {
                 onDescriptionCompanyError(true);
                 onDescriptionCompanyChangeErrorMsg("Description entreprise invalide")
                 isReady = false;
@@ -149,7 +157,7 @@ function HomeScreen({route, navigation}) {
                 onDescriptionCompanyChangeErrorMsg("")
             }
 
-            if(!payload.contract || payload.contract.trim() === "") {
+            if (!payload.contract || payload.contract.trim() === "") {
                 onChangeContractError(true);
                 onChangeContractErrorMsg("Type de contrat invalide")
                 isReady = false;
@@ -158,7 +166,7 @@ function HomeScreen({route, navigation}) {
                 onChangeContractErrorMsg("")
             }
 
-            if(!payload.workingPlace || payload.workingPlace.trim() === "") {
+            if (!payload.workingPlace || payload.workingPlace.trim() === "") {
                 onWorkingPlaceError(true);
                 onWorkingPlaceErrorChangeErrorMsg("Lieu de travail invalide")
                 isReady = false;
@@ -167,33 +175,36 @@ function HomeScreen({route, navigation}) {
                 onWorkingPlaceErrorChangeErrorMsg("")
             }
 
-            if(isReady === false) {
+            if (isReady === false) {
                 onSetBtnDisabled(false) // release
             } else {
-                
+
                 try {
                     const t = await AsyncStorage.getItem('jwt');
-                    if(t === null) {
+                    if (t === null) {
                         navigation.navigate('Acceuil')
                     } else {
                         const me = await axios.post(`${config.default.URL}/me`, {token: t});
 
-                        if(me.status === 200 || me.status === 201) {
+                        if (me.status === 200 || me.status === 201) {
                             const id = me.data[5].id;
 
-                            payload["user"] = "/users/"+id; // IRI
+                            payload["user"] = "/users/" + id; // IRI
 
-                            const resp = await axios.post(`${config.default.URL}/offres`,payload, {
+                            const resp = await axios.post(`${config.default.URL}/offres`, payload, {
                                 headers: {
                                     'Authorization': `Bearer ${t}`,
                                     'Content-type': 'application/json'
                                 }
                             });
 
-                            if(resp.status === 200 || resp.status === 201) {
+                            if (resp.status === 200 || resp.status === 201) {
                                 onSetBtnDisabled(false); // release
-                                navigation.navigate('Invitations', {offreIdTargetIRI: resp.data["@id"], userRole: userRole});
-                            } else{
+                                navigation.navigate('Invitations', {
+                                    offreIdTargetIRI: resp.data["@id"],
+                                    userRole: userRole
+                                });
+                            } else {
                                 onSetBtnDisabled(false); // release
                                 ToastAndroid.showWithGravity(
                                     "Erreur réseaux, veuillez réessayer",
@@ -210,7 +221,7 @@ function HomeScreen({route, navigation}) {
                             );
                         }
                     }
-                } catch(e) {
+                } catch (e) {
                     onSetBtnDisabled(false); // release
                     ToastAndroid.showWithGravity(
                         "Erreur réseaux, veuillez réessayer",
@@ -321,7 +332,8 @@ function HomeScreen({route, navigation}) {
                             }}
                         />
 
-                        <Button style={{marginTop:50, marginBottom: 50}} mode="contained" onPress={() => onSubmit()} disabled={btnDisabled}>
+                        <Button style={{marginTop: 50, marginBottom: 50}} mode="contained" onPress={() => onSubmit()}
+                                disabled={btnDisabled}>
                             Confirmer
                         </Button>
                     </View>
@@ -365,16 +377,16 @@ function HomeScreen({route, navigation}) {
         const [disabled, setDisabled] = React.useState(false);
 
 
-        const onSubmitCode = async() => {
+        const onSubmitCode = async () => {
             onSetLoading(true);
             setDisabled(true);
             const t = await AsyncStorage.getItem('jwt');
-            if(t === null) {
+            if (t === null) {
                 navigation.navigate('Authentication')
             } else {
                 try {
                     const me = await axios.post(`${config.default.URL}/me`, {token: t});
-                    if(me.status === 200 || me.status === 201 ) {
+                    if (me.status === 200 || me.status === 201) {
                         let userIri = `/users/${me.data[5].id}`;
 
                         const invitByToken = await axios.get(`${config.default.URL}/invits?token=${code}`, {
@@ -385,8 +397,8 @@ function HomeScreen({route, navigation}) {
                         });
 
 
-                        if(invitByToken.status === 200 || invitByToken.status === 201) {
-                            if(invitByToken.data["hydra:totalItems"] === 0) {
+                        if (invitByToken.status === 200 || invitByToken.status === 201) {
+                            if (invitByToken.data["hydra:totalItems"] === 0) {
                                 ToastAndroid.showWithGravity(
                                     "Code invalide",
                                     ToastAndroid.SHORT,
@@ -405,8 +417,10 @@ function HomeScreen({route, navigation}) {
                                     }
                                 });
 
+                                let applyId = responseApply.data["@id"].substr(responseApply.data["@id"].lastIndexOf('/') + 1);
+
                                 const putOffre = await axios.put(`${config.default.URL}/offres/${invitByToken.data["hydra:member"][0]["offre"]["id"]}`, {
-                                    applies:[`${responseApply.data["@id"]}`]
+                                    applies: [`${responseApply.data["@id"]}`]
                                 }, {
                                     headers: {
                                         'Authorization': `Bearer ${t}`,
@@ -414,8 +428,45 @@ function HomeScreen({route, navigation}) {
                                     }
                                 });
 
-                                if(putOffre.status === 200 || putOffre.status === 201) {
-                                    navigation.navigate('Mes offres')
+                                if (putOffre.status === 200 || putOffre.status === 201) {
+
+                                    const putApply = await axios.put(`${config.default.URL}/applies/${applyId}`, {
+                                        offer: `${putOffre.data["@id"]}`
+                                    }, {
+                                        headers: {
+                                            'Authorization': `Bearer ${t}`,
+                                            'Content-type': 'application/json'
+                                        }
+                                    });
+
+                                    if(putApply.status === 200 || putApply.status === 200) {
+                                        let invitId = invitByToken.data["hydra:member"][0]["@id"].substr(invitByToken.data["hydra:member"][0]["@id"].lastIndexOf('/') + 1);
+
+
+                                        const deleteInv = await axios.delete(`${config.default.URL}/invits/${invitId}`, {
+                                            headers: {
+                                                'Authorization': `Bearer ${t}`,
+                                                'Content-type': 'application/json'
+                                            }
+                                        });
+
+                                        if(deleteInv.status === 200 || deleteInv.status === 201) {
+                                            navigation.navigate('Mes offres')
+                                        } else {
+                                            ToastAndroid.showWithGravity(
+                                                "Une erreur est survenue. Veuillez réessayer.",
+                                                ToastAndroid.SHORT,
+                                                ToastAndroid.CENTER
+                                            );
+                                        }
+
+                                    } else {
+                                        ToastAndroid.showWithGravity(
+                                            "Une erreur est survenue. Veuillez réessayer.",
+                                            ToastAndroid.SHORT,
+                                            ToastAndroid.CENTER
+                                        );
+                                    }
                                 } else {
                                     ToastAndroid.showWithGravity(
                                         "Une erreur est survenue. Veuillez réessayer.",
@@ -441,10 +492,10 @@ function HomeScreen({route, navigation}) {
                             ToastAndroid.CENTER
                         );
                     }
-                } catch(e) {
+                } catch (e) {
                     onSetLoading(false);
                     setDisabled(false);
-                     ToastAndroid.showWithGravity(
+                    ToastAndroid.showWithGravity(
                         "Code invalide",
                         ToastAndroid.SHORT,
                         ToastAndroid.CENTER
@@ -471,16 +522,17 @@ function HomeScreen({route, navigation}) {
                     <HelperText
                         type="info"
                         visible={true}>Vous recevez vos codes via votre email d'inscription</HelperText>
-                    <Divider style={{margin : 20}}/>
+                    <Divider style={{margin: 20}}/>
                     <Card style={{padding: 5, marginTop: 30}}>
                         <Card.Content>
                             <TextInput style={{padding: 15, fontSize: 40}}
-                                onChangeText={newCode => onChangeCode(newCode)}
-                                value={code}
+                                       onChangeText={newCode => onChangeCode(newCode)}
+                                       value={code}
                             />
                         </Card.Content>
                     </Card>
-                    <Button style={{marginTop: 30}} icon="ticket" mode="contained" disabled={disabled} loading={loading} onPress={() => onSubmitCode()}>
+                    <Button style={{marginTop: 30}} icon="ticket" mode="contained" disabled={disabled} loading={loading}
+                            onPress={() => onSubmitCode()}>
                         Envoyer
                     </Button>
                 </View>
@@ -489,6 +541,92 @@ function HomeScreen({route, navigation}) {
     }
 
     function CandidatOfferScreen() {
+        // https://localhost:8443/applies?user.email=t%40t.com
+
+        const [appliesList, setAppliesList] = React.useState([]);
+
+        const apiProcess = async () => {
+            try {
+                const t = await AsyncStorage.getItem('jwt');
+                if (t === null) {
+                    navigation.navigate('Acceuil')
+                } else {
+                    const me = await axios.post(`${config.default.URL}/me`, {token: t});
+
+                    if (me.status === 200 || me.status === 201) {
+                        console.log(me.data[2].email)
+                        const encodedEmail = encodeURIComponent(me.data[2].email);
+                        console.log(`${config.default.URL}/applies?user.email=${encodedEmail}`);
+                        const myApplies = await axios.get(`${config.default.URL}/applies?user.email=${encodedEmail}`, {
+                            headers: {
+                                'Authorization': `Bearer ${t}`,
+                                'Content-type': 'application/json'
+                            }
+                        });
+
+                        if (myApplies.status === 200 || myApplies.status === 201) {
+                            setAppliesList(myApplies.data["hydra:member"])
+                            console.log("SET LIST", myApplies.data["hydra:member"])
+                        } else {
+                            ToastAndroid.showWithGravity(
+                                "Une erreur est survenue, veuillez réessayer",
+                                ToastAndroid.SHORT,
+                                ToastAndroid.CENTER
+                            );
+                        }
+                    } else {
+                        ToastAndroid.showWithGravity(
+                            "Une erreur est survenue, veuillez réessayer",
+                            ToastAndroid.SHORT,
+                            ToastAndroid.CENTER
+                        );
+                    }
+                }
+            } catch (e) {
+                ToastAndroid.showWithGravity(
+                    "Une erreur est survenue, veuillez réessayer",
+                    ToastAndroid.SHORT,
+                    ToastAndroid.CENTER
+                );
+            }
+
+        };
+
+        React.useEffect(() => {
+            apiProcess(); // load list
+            return () => {
+                console.log("unmount")
+            }
+        }, []);
+
+        console.log("my list", appliesList);
+
+        function Item({data}) { // data => apply
+            const str = `Candidature ° ${data.id}`
+            return (
+                <Card style={{margin: 15, padding: 10}}>
+                    <Card.Title title={str}/>
+                    <Card.Content>
+                        <Drawer.Item label={data.name === null ? 'Name :' : date.name}/>
+
+                        <Drawer.Item label={data.email === null ? 'Email :' : date.email}/>
+                        <Drawer.Item label={data.sexe === null ? 'Sexe :' : date.sexe}/>
+                        <Drawer.Item label={data.age === null ? 'Age :' : date.age}/>
+                        <Drawer.Item label={data.adresse === null ? 'Adresse :' : date.adresse}/>
+                        <Drawer.Item icon={"cash"} label={data.salary === null ? ':' : date.salary}/>
+
+                    </Card.Content>
+                    <Card.Cover source={{uri: 'https://picsum.photos/700'}}/>
+                    <Card.Cover source={{uri: 'https://picsum.photos/700'}}/>
+                    <Card.Actions>
+                        <Button style={{marginTop: 10}} onPress={() => {
+                            console.log("POSTULER WIP")
+                        }}>Compléter</Button>
+                    </Card.Actions>
+                </Card>
+            );
+        }
+
         return (
             <ScrollView>
                 <Appbar.Header>
@@ -502,16 +640,19 @@ function HomeScreen({route, navigation}) {
                     />
                 </Appbar.Header>
                 <View style={{paddingTop: 15, margin: 30}}>
+                    <FlatList
+                        data={appliesList}
+                        renderItem={({item}) => <Item data={item}/>}
+                        keyExtractor={item => item.id}
+                    />
                 </View>
             </ScrollView>
         );
     }
 
 
-
     const homeCandidat = Candidat();
     const homeRecruteur = Recruteur();
-
 
 
     let renderScreen;
