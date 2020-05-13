@@ -74,7 +74,7 @@ function AuthScreen({navigation}) {
                     password: payload.password
                 });
 
-                if (res.status === 200) {
+                if (res.status === 200 || res.status === 201) {
                     setIsInputLoading(true); // editable
                     setIsButtonEnabled(false); // not disable
 
@@ -85,7 +85,7 @@ function AuthScreen({navigation}) {
 
                     const me = await axios.post(`${config.default.URL}/me`, {token: res.data.token});
 
-                    if (me.status === 200) {
+                    if (me.status === 200 || me.status === 201) {
                         setIsInputLoading(true); // editable
                         setIsButtonEnabled(false); // not disable
                         navigation.navigate('Accueil', {
@@ -94,7 +94,7 @@ function AuthScreen({navigation}) {
                     } else {
                         setIsInputLoading(true); // editable
                         setIsButtonEnabled(false); // not disable
-
+                        console.log("ICI")
                         ToastAndroid.showWithGravity(
                             "Erreur réseaux, veuillez réessayer",
                             ToastAndroid.SHORT,
@@ -105,12 +105,16 @@ function AuthScreen({navigation}) {
                 } else if(res.status === 400) {
                     setIsInputLoading(true); // editable
                     setIsButtonEnabled(false); // not disable
+                    console.log("LA")
+
                     ToastAndroid.showWithGravity(
                         "Aucun utilisateur pour ces identifiants",
                         ToastAndroid.LONG,
                         ToastAndroid.CENTER
                     );
                 } else {
+                    console.log("LABA")
+
                     setIsInputLoading(true); // editable
                     setIsButtonEnabled(false); // not disable
                     ToastAndroid.showWithGravity(
@@ -120,6 +124,9 @@ function AuthScreen({navigation}) {
                     );
                 }
             } catch (e) {
+                console.log("LABAR")
+                console.log(e);
+
                 setIsInputLoading(true); // editable
                 setIsButtonEnabled(false); // not disable
                 ToastAndroid.showWithGravity(
@@ -208,7 +215,7 @@ function AuthScreen({navigation}) {
 
                 console.log(payload)
 
-                if (res.status === 200) {
+                if (res.status === 200 || res.status === 200) {
 
                     const tok = await axios.post(`${config.default.URL}/authentication_token`, {
                         email: payload.email,
@@ -216,7 +223,7 @@ function AuthScreen({navigation}) {
                         roles: payload.roles
                     });
 
-                    if (tok.status === 200) {
+                    if (tok.status === 200 || tok.status === 201) {
                         console.log("TOKEN -> ", tok.data.token);
                         try {
                             await AsyncStorage.setItem(
@@ -226,7 +233,7 @@ function AuthScreen({navigation}) {
 
                             const me = await axios.post(`${config.default.URL}/me`, {token: tok.data.token});
 
-                            if (me.status === 200) {
+                            if (me.status === 200 || me.status === 201) {
                                 setIsInputLoading(true); // editable
                                 setIsButtonEnabled(false); // not disable
                                 navigation.navigate('Accueil', {

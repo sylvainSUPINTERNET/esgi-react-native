@@ -1,7 +1,7 @@
 import React from "react";
 
 import {Text, View, ScrollView, ToastAndroid} from "react-native";
-import {Appbar, Button, TextInput, Divider, Checkbox, HelperText} from 'react-native-paper';
+import {Appbar, Button, TextInput, Divider, Checkbox, HelperText, Card, Title, Paragraph} from 'react-native-paper';
 import DatePicker from 'react-native-datepicker'
 import {AsyncStorage} from 'react-native';
 import axios from 'axios';
@@ -191,7 +191,8 @@ function HomeScreen({route, navigation}) {
                             });
 
                             if(resp.status === 200 || resp.status === 201) {
-                                navigation.navigate('Invitations');
+                                onSetBtnDisabled(false); // release
+                                navigation.navigate('Invitations', {offreIdTargetIRI: resp.data["@id"], userRole: userRole});
                             } else{
                                 onSetBtnDisabled(false); // release
                                 ToastAndroid.showWithGravity(
@@ -320,7 +321,7 @@ function HomeScreen({route, navigation}) {
                             }}
                         />
 
-                        <Button style={{marginTop:15, marginBottom: 100}} mode="contained" onPress={() => onSubmit()} disabled={btnDisabled}>
+                        <Button style={{marginTop:50, marginBottom: 50}} mode="contained" onPress={() => onSubmit()} disabled={btnDisabled}>
                             Confirmer
                         </Button>
                     </View>
@@ -358,6 +359,101 @@ function HomeScreen({route, navigation}) {
     }
 
     function HomeCandidatScreen() {
+        const [code, onChangeCode] = React.useState('');
+
+        const [loading, onSetLoading] = React.useState(false);
+        const [disabled, setDisabled] = React.useState(false);
+
+
+        const onSubmitCode = async() => {
+            onSetLoading(true);
+            setDisabled(true);
+            const t = await AsyncStorage.getItem('jwt');
+            if(t === null) {
+                navigation.navigate('Authentication')
+            } else {
+                try {
+                    const me = await axios.post(`${config.default.URL}/me`, {token: t});
+                    if(me.status === 200 || me.status === 201 ) {
+                        let userIri = `/users/${me.data[5].id}`;
+
+                        const invitByToken = await axios.get(`${config.default.URL}/invits?token=${code}`, {
+                            headers: {
+                                'Authorization': `Bearer ${t}`,
+                                'Content-type': 'application/json'
+                            }
+                        });
+
+
+                        if(invitByToken.status === 200 || invitByToken.status === 201) {
+                            if(invitByToken.data["hydra:totalItems"] === 0) {
+                                ToastAndroid.showWithGravity(
+                                    "Code invalide",
+                                    ToastAndroid.SHORT,
+                                    ToastAndroid.CENTER
+                                );
+                            } else {
+
+                                const responseApply = await axios.post(`${config.default.URL}/applies`, {
+                                    "status": "open",
+                                    "email": me.data[4].email,
+                                    "user": `/users/${me.data[5].id}`
+                                }, {
+                                    headers: {
+                                        'Authorization': `Bearer ${t}`,
+                                        'Content-type': 'application/json'
+                                    }
+                                });
+
+                                const putOffre = await axios.put(`${config.default.URL}/offres/${invitByToken.data["hydra:member"][0]["offre"]["id"]}`, {
+                                    applies:[`${responseApply.data["@id"]}`]
+                                }, {
+                                    headers: {
+                                        'Authorization': `Bearer ${t}`,
+                                        'Content-type': 'application/json'
+                                    }
+                                });
+
+                                if(putOffre.status === 200 || putOffre.status === 201) {
+                                    navigation.navigate('Mes offres')
+                                } else {
+                                    ToastAndroid.showWithGravity(
+                                        "Une erreur est survenue. Veuillez réessayer.",
+                                        ToastAndroid.SHORT,
+                                        ToastAndroid.CENTER
+                                    );
+                                }
+                            }
+                        } else {
+                            ToastAndroid.showWithGravity(
+                                "Code invalide",
+                                ToastAndroid.SHORT,
+                                ToastAndroid.CENTER
+                            );
+                        }
+
+                    } else {
+                        onSetLoading(false);
+                        setDisabled(false);
+                        ToastAndroid.showWithGravity(
+                            "Une erreur est survenue, veuillez réessayer",
+                            ToastAndroid.SHORT,
+                            ToastAndroid.CENTER
+                        );
+                    }
+                } catch(e) {
+                    onSetLoading(false);
+                    setDisabled(false);
+                     ToastAndroid.showWithGravity(
+                        "Code invalide",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                    );
+                }
+            }
+
+        };
+
         return (
             <ScrollView>
                 <Appbar.Header>
@@ -370,7 +466,23 @@ function HomeScreen({route, navigation}) {
                         subtitle="L'application pour les recruteurs !"
                     />
                 </Appbar.Header>
-                <View style={{paddingTop: 15, margin: 30}}>
+                <View style={{paddingTop: 30, margin: 30}}>
+                    <Text style={{textAlign: 'center', fontSize: 30}}>Code invitation ?</Text>
+                    <HelperText
+                        type="info"
+                        visible={true}>Vous recevez vos codes via votre email d'inscription</HelperText>
+                    <Divider style={{margin : 20}}/>
+                    <Card style={{padding: 5, marginTop: 30}}>
+                        <Card.Content>
+                            <TextInput style={{padding: 15, fontSize: 40}}
+                                onChangeText={newCode => onChangeCode(newCode)}
+                                value={code}
+                            />
+                        </Card.Content>
+                    </Card>
+                    <Button style={{marginTop: 30}} icon="ticket" mode="contained" disabled={disabled} loading={loading} onPress={() => onSubmitCode()}>
+                        Envoyer
+                    </Button>
                 </View>
             </ScrollView>
         );
