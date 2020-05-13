@@ -1,13 +1,18 @@
 import React from "react";
 
-import {View, ScrollView, Text,ToastAndroid} from "react-native";
-import {Appbar, Button, TextInput, Divider, Checkbox, HelperText} from 'react-native-paper';
+import {View, ScrollView, Text, ToastAndroid} from "react-native";
+import {Appbar, Button, TextInput, Divider, Checkbox, HelperText, TouchableRipple} from 'react-native-paper';
+import {AsyncStorage} from 'react-native';
 
 import axios from 'axios';
 
 import * as config from '../api/config'
+import {isLogged} from "./authCheck";
 
 function AuthScreen({navigation}) {
+
+    const [isInputsLoading, setIsInputLoading] = React.useState(true);
+    const [isButtonEnabled, setIsButtonEnabled] = React.useState(false);
 
     const [isChecked, onCheck] = React.useState(true);
 
@@ -27,7 +32,11 @@ function AuthScreen({navigation}) {
 
     const [isLogin, setIsLogin] = React.useState(true);
 
+
     const submitFormLogin = async () => {
+        setIsInputLoading(false); // not editable
+        setIsButtonEnabled(true); // disable
+
         const formData = {
             email: email,
             password: password
@@ -35,7 +44,7 @@ function AuthScreen({navigation}) {
 
         let isReady = true;
 
-        if(!formData.email || formData.email.trim() === "" || /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(formData.email) === false) {
+        if (!formData.email || formData.email.trim() === "" || /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(formData.email) === false) {
             onChangeErrorEmailRegister(true);
             onChangeErrorEmailRegisterMsg("Email invalide");
             isReady = false;
@@ -44,7 +53,7 @@ function AuthScreen({navigation}) {
             onChangeErrorEmailRegister(false)
         }
 
-        if(!formData.password || formData.password.trim() === "" || formData.password.trim().length < 6) {
+        if (!formData.password || formData.password.trim() === "" || formData.password.trim().length < 6) {
             onChangePasswordErrorRegister(true)
             onChangePasswordErrorRegisterMsg("Indiqué votre mot de passe")
             isReady = false;
@@ -53,10 +62,83 @@ function AuthScreen({navigation}) {
             onChangePasswordErrorRegisterMsg("")
         }
 
-        console.log("LOGIN : " + isReady)
+        if (isReady) {
+            let payload = {
+                email: formData.email,
+                password: formData.password
+            };
+
+            try {
+                const res = await axios.post(`${config.default.URL}/authentication_token`, {
+                    email: payload.email,
+                    password: payload.password
+                });
+
+                if (res.status === 200) {
+                    setIsInputLoading(true); // editable
+                    setIsButtonEnabled(false); // not disable
+
+                    const t = await AsyncStorage.setItem(
+                        'jwt',
+                        res.data.token
+                    );
+
+                    const me = await axios.post(`${config.default.URL}/me`, {token: res.data.token});
+
+                    if (me.status === 200) {
+                        setIsInputLoading(true); // editable
+                        setIsButtonEnabled(false); // not disable
+                        navigation.navigate('Accueil', {
+                            roles: me.data[4].roles
+                        });
+                    } else {
+                        setIsInputLoading(true); // editable
+                        setIsButtonEnabled(false); // not disable
+
+                        ToastAndroid.showWithGravity(
+                            "Erreur réseaux, veuillez réessayer",
+                            ToastAndroid.SHORT,
+                            ToastAndroid.CENTER
+                        );
+                    }
+
+                } else if(res.status === 400) {
+                    setIsInputLoading(true); // editable
+                    setIsButtonEnabled(false); // not disable
+                    ToastAndroid.showWithGravity(
+                        "Aucun utilisateur pour ces identifiants",
+                        ToastAndroid.LONG,
+                        ToastAndroid.CENTER
+                    );
+                } else {
+                    setIsInputLoading(true); // editable
+                    setIsButtonEnabled(false); // not disable
+                    ToastAndroid.showWithGravity(
+                        "Erreur réseaux, veuillez réessayer",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                    );
+                }
+            } catch (e) {
+                setIsInputLoading(true); // editable
+                setIsButtonEnabled(false); // not disable
+                ToastAndroid.showWithGravity(
+                    "Erreur réseaux, veuillez réessayer",
+                    ToastAndroid.SHORT,
+                    ToastAndroid.CENTER
+                );
+            }
+
+        } else {
+            setIsInputLoading(true); // editable
+            setIsButtonEnabled(false); // not disable
+        }
     };
 
     const submitFormRegister = async () => {
+
+        setIsInputLoading(false); // not editable
+        setIsButtonEnabled(true); // disable
 
         const formData = {
             email: email,
@@ -66,7 +148,7 @@ function AuthScreen({navigation}) {
 
         let isReady = true;
 
-        if(!formData.email || formData.email.trim() === "" || /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(formData.email) === false) {
+        if (!formData.email || formData.email.trim() === "" || /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(formData.email) === false) {
             onChangeErrorEmailRegister(true);
             onChangeErrorEmailRegisterMsg("Email non valide");
             isReady = false;
@@ -75,7 +157,7 @@ function AuthScreen({navigation}) {
             onChangeErrorEmailRegister(false)
         }
 
-        if(!formData.password || formData.password.trim() === "" || formData.password.trim().length < 6) {
+        if (!formData.password || formData.password.trim() === "" || formData.password.trim().length < 6) {
             onChangePasswordErrorRegister(true)
             onChangePasswordErrorRegisterMsg("7 caractères minimum")
             isReady = false;
@@ -85,7 +167,7 @@ function AuthScreen({navigation}) {
         }
 
 
-        if(!formData.passwordConfirmed || formData.passwordConfirmed.trim() === "") {
+        if (!formData.passwordConfirmed || formData.passwordConfirmed.trim() === "") {
             onChangePasswordConfirmedErrorRegister(true)
             isReady = false;
             onChangePasswordConfirmedErrorRegisterMsg("Remplissez votre mot de passe")
@@ -94,7 +176,7 @@ function AuthScreen({navigation}) {
             onChangePasswordConfirmedErrorRegister(false)
         }
 
-        if(formData.passwordConfirmed.trim() !== formData.password.trim()) {
+        if (formData.passwordConfirmed.trim() !== formData.password.trim()) {
             onChangePasswordConfirmedErrorRegister(true)
             onChangePasswordConfirmedErrorRegisterMsg("Les mots de passe correspondent pas")
             isReady = false;
@@ -103,12 +185,12 @@ function AuthScreen({navigation}) {
             onChangePasswordConfirmedErrorRegisterMsg("")
         }
 
-        if(isReady === true) {
+        if (isReady === true) {
             const ROLES = [
                 'ROLE_CANDIDAT',
                 'ROLE_RECRUTEUR'
             ];
-            let role = isChecked === true ? ROLES[1] : ROLES[0] ;
+            let role = isChecked === true ? ROLES[1] : ROLES[0];
 
             let payload = {
                 email: formData.email,
@@ -116,58 +198,97 @@ function AuthScreen({navigation}) {
                 roles: role
             };
 
-            console.log("before try")
+            try {
 
-                console.log("1")
-                console.log(payload);
+                const res = await axios.post(`${config.default.URL}/register`, {
+                    email: payload.email,
+                    password: payload.password,
+                    roles: payload.roles
+                });
 
-                const res = await axios.post(`${config.default.URL}/register`, {email : payload.email, password: payload.password, roles: payload.roles})
+                console.log(payload)
 
-                if(res.status === 200) {
+                if (res.status === 200) {
 
-                    const tok = await axios.post(`${config.default.URL}/authentication_token`, {email : payload.email, password: payload.password, roles: payload.roles})
+                    const tok = await axios.post(`${config.default.URL}/authentication_token`, {
+                        email: payload.email,
+                        password: payload.password,
+                        roles: payload.roles
+                    });
 
-                    if(tok.status === 200) {
+                    if (tok.status === 200) {
                         console.log("TOKEN -> ", tok.data.token);
-                    } else {
-                        ToastAndroid.showWithGravity(
-                            "Erreur réseaux, veuillez réessayer",
-                            ToastAndroid.SHORT,
-                            ToastAndroid.CENTER
-                        );
+                        try {
+                            await AsyncStorage.setItem(
+                                'jwt',
+                                tok.data.token
+                            );
+
+                            const me = await axios.post(`${config.default.URL}/me`, {token: tok.data.token});
+
+                            if (me.status === 200) {
+                                setIsInputLoading(true); // editable
+                                setIsButtonEnabled(false); // not disable
+                                navigation.navigate('Accueil', {
+                                    roles: me.data[4].roles
+                                });
+                            } else {
+                                setIsInputLoading(true); // editable
+                                setIsButtonEnabled(false); // not disable
+
+                                ToastAndroid.showWithGravity(
+                                    "Erreur réseaux, veuillez réessayer",
+                                    ToastAndroid.SHORT,
+                                    ToastAndroid.CENTER
+                                );
+                            }
+
+                        } catch (error) {
+
+                            setIsInputLoading(true); // editable
+                            setIsButtonEnabled(false); // not disable
+
+                            ToastAndroid.showWithGravity(
+                                "Erreur réseaux, veuillez réessayer",
+                                ToastAndroid.SHORT,
+                                ToastAndroid.CENTER
+                            );
+                        }
                     }
+
+                } else if(res.status === 400) {
+                    setIsInputLoading(true); // editable
+                    setIsButtonEnabled(false); // not disable
+
+                    ToastAndroid.showWithGravity(
+                        "Cet uttilisateur existe déjà",
+                        ToastAndroid.LONG,
+                        ToastAndroid.CENTER
+                    );
                 } else {
+                    setIsInputLoading(true); // editable
+                    setIsButtonEnabled(false); // not disable
+
                     ToastAndroid.showWithGravity(
                         "Erreur réseaux, veuillez réessayer",
                         ToastAndroid.SHORT,
                         ToastAndroid.CENTER
                     );
                 }
-                //if(response.status === 200) {
 
-                /*
-                    const response = await fetch(`${config.default.URL}/authentication_token`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'multipart/form-data;charset=utf-8; boundary='+ Math.random().toString().substr(2)
-                        },
-                        body: {email: body.email, password: body.password}
-                    });
-                    const jsonResponse = await response.json();
-                    console.log("FINAL", jsonResponse);
+            } catch (e) {
+                setIsInputLoading(true); // editable
+                setIsButtonEnabled(false); // not disable
 
-                 */
-
-                //} else {
-                // ToastAndroid.showWithGravity(
-                //    "Utilisateur existe déjà !",
-                //    ToastAndroid.SHORT,
-                //     ToastAndroid.CENTER
-                //  );
-                // }
-
-
-
+                ToastAndroid.showWithGravity(
+                    "Erreur réseaux, veuillez réessayer",
+                    ToastAndroid.SHORT,
+                    ToastAndroid.CENTER
+                );
+            }
+        } else {
+            setIsInputLoading(true); // editable
+            setIsButtonEnabled(false); // not disable
         }
 
 
@@ -186,6 +307,7 @@ function AuthScreen({navigation}) {
                        keyboardType={'email-address'}
                        error={errorEmailRegister}
                        onChangeText={emailValue => onChangeEmail(emailValue)}
+                       editable={isInputsLoading}
             />
             <HelperText
                 type="error"
@@ -199,17 +321,20 @@ function AuthScreen({navigation}) {
                        secureTextEntry={true}
                        error={passwordErrorRegister}
                        onChangeText={passwordValue => onChangePassword(passwordValue)}
+                       editable={isInputsLoading}
             />
             <HelperText
                 type="error"
                 visible={true}
             >{passwordErrorRegisterMsg}</HelperText>
 
-            <Button icon="lock-open" mode="contained" onPress={() => submitFormLogin() }>
+            <Button icon="lock-open" mode="contained" onPress={() => submitFormLogin()} disabled={isButtonEnabled}>
                 Se connecter
             </Button>
 
-            <Button style={{textAlign: 'center', margin: 30}} onPress={ () => {setIsLogin(false)}}> Pas de compte ?</Button>
+            <Button style={{textAlign: 'center', margin: 30}} onPress={() => {
+                setIsLogin(false)
+            }}> Pas de compte ?</Button>
         </View>;
 
     registerForm =
@@ -221,17 +346,20 @@ function AuthScreen({navigation}) {
                        keyboardType={'email-address'}
                        error={errorEmailRegister}
                        onChangeText={emailValue => onChangeEmail(emailValue)}
+                       editable={isInputsLoading}
             />
             <HelperText
                 type="error"
                 visible={true}
             >{errorEmailRegisterMsg}</HelperText>
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', margin: 20 }}>
+            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', margin: 20}}>
                 <Text styte={{fontSize: 20}}>Je suis recruteur</Text>
                 <Checkbox
                     color="purple"
                     status={isChecked ? 'checked' : 'unchecked'}
-                    onPress={() => { isChecked === true ? onCheck(false): onCheck(true) }}
+                    onPress={() => {
+                        isChecked === true ? onCheck(false) : onCheck(true)
+                    }}
                 />
             </View>
             <TextInput style={{padding: 5, margin: 10}}
@@ -241,6 +369,7 @@ function AuthScreen({navigation}) {
                        secureTextEntry={true}
                        error={passwordErrorRegister}
                        onChangeText={passwordValue => onChangePassword(passwordValue)}
+                       editable={isInputsLoading}
             />
             <HelperText
                 type="error"
@@ -253,6 +382,7 @@ function AuthScreen({navigation}) {
                        error={passwordConfirmedErrorRegister}
                        secureTextEntry={true}
                        onChangeText={passwordConfirmedValue => onChangePasswordConfirmed(passwordConfirmedValue)}
+                       editable={isInputsLoading}
             />
             <HelperText
                 type="error"
@@ -260,18 +390,21 @@ function AuthScreen({navigation}) {
             >{passwordConfirmedErrorRegisterMsg}</HelperText>
             <Divider style={{margin: 30}}/>
 
-            <Button icon="lock-open" mode="contained" onPress={() => submitFormRegister() }>
+            <Button icon="lock-open" mode="contained" onPress={() => submitFormRegister()} disabled={isButtonEnabled}>
                 S'enregistrer
             </Button>
-            <Button style={{textAlign: 'center', margin: 30}} onPress={ () => {setIsLogin(true)}}> Déjà un compte ?</Button>
+            <Button style={{textAlign: 'center', margin: 30}} onPress={() => {
+                setIsLogin(true)
+            }}> Déjà un compte ?</Button>
         </View>;
 
 
-    if (isLogin) {
-        formRender = loginForm
-    } else {
-        formRender = registerForm
-    }
+        if (isLogin) {
+            formRender = loginForm
+        } else {
+            formRender = registerForm
+        }
+
 
 
     return (

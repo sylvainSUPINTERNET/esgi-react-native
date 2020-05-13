@@ -11,6 +11,10 @@ function InvitationsScreen({ navigation }) {
 
     const [usersList, setUsersList] = React.useState([]);
 
+    const [token, onChangeToken] = React.useState("");
+    const [tokenError, onTokenChangeError] = React.useState(false);
+    const [tokenErrorMsg, onTokenChangeErrorMsg] = React.useState("");
+
     function sendInvit(email){
         let tk = Math.random().toString(36).substr(2);
         let tokeninv =`${tk}`;
@@ -20,7 +24,6 @@ function InvitationsScreen({ navigation }) {
     function Item({ email, username, roles }) {
         return (
             <View style={{margin: 15, padding: 10}}>
-
             <List.Item
                 title={username}
                 description={email}
@@ -238,6 +241,7 @@ function InvitationsScreen({ navigation }) {
             </ScrollView>
         )
     }
+    
     function InvRecruteurView(){
         return (
             <ScrollView>
@@ -274,13 +278,27 @@ function InvitationsScreen({ navigation }) {
         navigation.navigate('Authentication')
     }
 
-
-
-
     return (
-        renderScreen
+    <ScrollView>
+        <View style={{paddingTop: 15, margin: 30}}>
+            <TextInput style={{padding: 5, margin: 10}}
+                       label='Token'
+                       value={token}
+                       mode={'outlined'}
+                       error={tokenError}
+                       onChangeText={tokenValue => onChangeToken(tokenValue)}
+            />
+            <HelperText
+                type="error"
+                visible={true}
+            >{tokenErrorMsg}</HelperText>      
+
+            <Button style={{marginTop:15, marginBottom: 100}} mode="contained" onPress={() => onSubmit()} disabled={btnDisabled}>
+                Confirmer
+            </Button>
+        </View>
+    </ScrollView>
     );
 }
-
 
 export default InvitationsScreen;
