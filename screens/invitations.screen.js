@@ -241,6 +241,7 @@ function InvitationsScreen({ navigation }) {
             </ScrollView>
         )
     }
+    
     function InvRecruteurView(){
         return (
             <ScrollView>
@@ -277,7 +278,6 @@ function InvitationsScreen({ navigation }) {
         navigation.navigate('Authentication')
     }
 
-
     return (
     <ScrollView>
         <View style={{paddingTop: 15, margin: 30}}>
@@ -300,6 +300,5 @@ function InvitationsScreen({ navigation }) {
     </ScrollView>
     );
 }
-
 
 export default InvitationsScreen;
