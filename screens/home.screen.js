@@ -3,15 +3,47 @@ import React from "react";
 import {Text, View, ScrollView} from "react-native";
 import {Appbar, Button, TextInput, Divider, Checkbox, HelperText} from 'react-native-paper';
 import DatePicker from 'react-native-datepicker'
+import {AsyncStorage} from 'react-native';
 
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {isLogged} from "./authCheck";
 
-function HomeScreen({navigation}) {
+function HomeScreen({route, navigation}) {
 
-    // TODO -> user debra être mis dans le AsyncStorage en se basent sur les données du token
-    const [userRole, setUserRole] = React.useState("ROLE_RECRUTEUR");
+    const [userRole, setUserRole] = React.useState("LOADING");
+
+    /*
+    React.useEffect(async () => {
+        console.log("HOME USE EFFECT");
+
+            const logged = await isLogged();
+            console.log(logged);
+            if(logged === "") {
+                navigation.navigate('Authentication')
+            } else {
+                console.log("LOGGED", logged);
+                setUserRole(logged)
+            }
+            console.log("LOG", logged)
+
+
+    }, []);
+     */
+
+    React.useEffect( () => {
+
+        if(route.params) {
+            const {roles} = route.params
+            console.log(roles);
+            setUserRole(roles)
+        } else {
+            navigation.navigate('Authentication')
+        }
+
+    });
 
     const Tab = createBottomTabNavigator();
+
 
 
     function Recruteur() {
@@ -20,6 +52,7 @@ function HomeScreen({navigation}) {
             <Tab.Screen name="Mes offres" component={RecruteurOfferScreen}/>
         </Tab.Navigator>
     }
+
     function HomeRecruteurScreen() {
 
         const [name, onNameChange] = React.useState("");
@@ -43,8 +76,6 @@ function HomeScreen({navigation}) {
         const [workingPlace, onWorkingPlaceChange] = React.useState("");
         const [workingPlaceError, onWorkingPlaceError] = React.useState(false);
         const [workingPlaceErrorErrorMsg, onWorkingPlaceErrorChangeErrorMsg] = React.useState("");
-
-
 
 
         const onSubmit = async () => {
@@ -151,7 +182,9 @@ function HomeScreen({navigation}) {
                                     marginLeft: 36
                                 }
                             }}
-                            onDateChange={(date) => { onStartAtChange(date)}}
+                            onDateChange={(date) => {
+                                onStartAtChange(date)
+                            }}
                         />
 
                     </View>
@@ -227,17 +260,18 @@ function HomeScreen({navigation}) {
     }
 
 
+
     const homeCandidat = Candidat();
     const homeRecruteur = Recruteur();
+
+
 
     let renderScreen;
 
     if (userRole === "ROLE_CANDIDAT") {
         renderScreen = homeCandidat
-    } else if (userRole === "ROLE_RECRUTEUR") {
-        renderScreen = homeRecruteur
     } else {
-        navigation.navigate('Authentication')
+        renderScreen = homeRecruteur
     }
 
 
