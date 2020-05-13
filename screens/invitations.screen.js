@@ -5,18 +5,22 @@ import {Appbar, List, Button, Divider} from "react-native-paper";
 
 function InvitationsScreen({ navigation }) {
 
+
     // TODO -> user debra être mis dans le AsyncStorage en se basent sur les données du token
     const [userRole, setUserRole] = React.useState("ROLE_RECRUTEUR");
 
     const [usersList, setUsersList] = React.useState([]);
 
     function sendInvit(email){
-        console.log("SEND INVIT TO " + email)
+        let tk = Math.random().toString(36).substr(2);
+        let tokeninv =`${tk}`;
+        console.log("SEND INVIT TO " + email + " tk : " + tokeninv)
     }
 
-    function Item({ email, username }) {
+    function Item({ email, username, roles }) {
         return (
             <View style={{margin: 15, padding: 10}}>
+
             <List.Item
                 title={username}
                 description={email}

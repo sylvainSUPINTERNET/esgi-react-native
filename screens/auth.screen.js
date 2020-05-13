@@ -3,6 +3,7 @@ import React from "react";
 import {View, ScrollView, Text,ToastAndroid} from "react-native";
 import {Appbar, Button, TextInput, Divider, Checkbox, HelperText} from 'react-native-paper';
 
+import axios from 'axios';
 
 import * as config from '../api/config'
 
@@ -115,32 +116,57 @@ function AuthScreen({navigation}) {
                 roles: role
             };
 
+            console.log("before try")
 
-            try {
+                console.log("1")
+                console.log(payload);
+
+                const res = await axios.post(`${config.default.URL}/register`, {email : payload.email, password: payload.password, roles: payload.roles})
+
+                if(res.status === 200) {
+
+                    const tok = await axios.post(`${config.default.URL}/authentication_token`, {email : payload.email, password: payload.password, roles: payload.roles})
+
+                    if(tok.status === 200) {
+                        console.log("TOKEN -> ", tok.data.token);
+                    } else {
+                        ToastAndroid.showWithGravity(
+                            "Erreur réseaux, veuillez réessayer",
+                            ToastAndroid.SHORT,
+                            ToastAndroid.CENTER
+                        );
+                    }
+                } else {
+                    ToastAndroid.showWithGravity(
+                        "Erreur réseaux, veuillez réessayer",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                    );
+                }
+                //if(response.status === 200) {
+
+                /*
+                    const response = await fetch(`${config.default.URL}/authentication_token`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'multipart/form-data;charset=utf-8; boundary='+ Math.random().toString().substr(2)
+                        },
+                        body: {email: body.email, password: body.password}
+                    });
+                    const jsonResponse = await response.json();
+                    console.log("FINAL", jsonResponse);
+
+                 */
+
+                //} else {
+                // ToastAndroid.showWithGravity(
+                //    "Utilisateur existe déjà !",
+                //    ToastAndroid.SHORT,
+                //     ToastAndroid.CENTER
+                //  );
+                // }
 
 
-                let body = new FormData();
-                body.append('email', payload.email);
-                body.append('password', payload.password);
-                body.append('roles', payload.roles);
-
-                console.log(body);
-                const response = await fetch(`${config.default.URL}/register`, {
-                    method: 'POST',
-                    body: body
-                });
-                console.log("GO ? : " + config.default.URL)
-
-                console.log(response);
-
-
-            } catch (e) {
-                ToastAndroid.showWithGravity(
-                    "Erreur réseaux, veuillez réessayer",
-                    ToastAndroid.SHORT,
-                    ToastAndroid.CENTER
-                );
-            }
 
         }
 

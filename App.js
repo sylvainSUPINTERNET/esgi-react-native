@@ -49,7 +49,6 @@ const App: () => React$Node = () => {
                         <Drawer.Screen name="Authentication" component={AuthScreen}/>
                         <Drawer.Screen name="Accueil" component={HomeScreen}/>
                         <Drawer.Screen name="Invitations" component={InvitationsScreen}/>
-
                     </Drawer.Navigator>
                 </NavigationContainer>
             </PaperProvider>
