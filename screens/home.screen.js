@@ -47,7 +47,6 @@ function HomeScreen({route, navigation}) {
     const Tab = createBottomTabNavigator();
 
 
-
     function Recruteur() {
         return <Tab.Navigator>
             <Tab.Screen name="Ajouter une offre" component={HomeRecruteurScreen}/>
@@ -307,12 +306,12 @@ function HomeScreen({route, navigation}) {
                             customStyles={{
                                 dateIcon: {
                                     position: 'absolute',
-                                    left: 0,
+                                    left: 23,
                                     top: 4,
                                     marginLeft: 0
                                 },
                                 dateInput: {
-                                    marginLeft: 36
+                                    marginLeft: 70
                                 }
                             }}
                             onDateChange={(date) => {
