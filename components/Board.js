@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Text, TouchableOpacity } from 'react-native';
+import { Text, ScrollView } from 'react-native';
 
 import List from '../components/List';
 
@@ -26,14 +26,13 @@ class Board extends Component
         });
 
         const lists = Object.keys(appliesByStatus).map(key =>
-            //<Text>{JSON.stringify(appliesByStatus[key])}</Text>
             <List status={key} applicants={appliesByStatus[key]} />
         );
 
         return (
-            <Text>
+            <ScrollView horizontal style={{display: 'flex', flexDirection: 'row', padding: 10, overflowX: 'scroll', width: '100%', boxSizing: 'border-box', maxHeight: 500}}>
                 {lists}
-            </Text>
+            </ScrollView>
         );
     }
 }

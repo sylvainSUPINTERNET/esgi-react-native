@@ -28,6 +28,21 @@ function OfferAppliesScreen({navigation, route}) {
         {
             name: "Mallet",
             firstname: "Thomas",
+            status: "Canceled"
+        },
+        {
+            name: "Smith",
+            firstname: "John",
+            status: "Validated"
+        },
+        {
+            name: "Martin",
+            firstname: "Jacques",
+            status: "Created"
+        },
+        {
+            name: "Dupont",
+            firstname: "Michel",
             status: "Validated"
         }
     ];
@@ -59,9 +74,7 @@ function OfferAppliesScreen({navigation, route}) {
                    />
                </Appbar.Header>
                <View>
-                   <Text>teeest</Text>
-                   <Text>{JSON.stringify(applies)}</Text>
-                   <Text>{content}</Text>
+                   <View>{content}</View>
                </View>
             </ScrollView>
         );

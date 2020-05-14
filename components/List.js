@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Text, TouchableOpacity } from 'react-native';
+import { Text, View, ScrollView } from 'react-native';
+
+import Card from '../components/Card';
 
 class List extends Component
 {
@@ -13,8 +15,17 @@ class List extends Component
     {
         const { status, applicants } = this.props;
 
+        const cards = Object.keys(applicants).map(key =>
+            <Card applicant={applicants[key]} />
+        );
+
         return (
-            <Text>{status}</Text>
+            <View style={{width: 150, backgroundColor: '#e3e4e6', marginRight: 10, borderRadius: 5, display: 'flex', flexDirection: 'column', height: 'auto', flexGrow: 0, overflowY: 'scroll'}}>
+                <Text style={{padding: 5, fontWeight: 'bold'}}>{status}</Text>
+                <ScrollView>
+                    {cards}
+                </ScrollView>
+            </View>
         );
     }
 }
