@@ -1,7 +1,9 @@
 import React from "react";
 
-import {Text, View, ScrollView, ToastAndroid} from "react-native";
-import {Appbar, Button, TextInput, Divider, Checkbox, HelperText} from 'react-native-paper';
+
+import {Text, View, ScrollView, ToastAndroid, FlatList} from "react-native";
+import {Appbar, Button, TextInput, Divider, Checkbox, HelperText, List} from 'react-native-paper';
+
 import DatePicker from 'react-native-datepicker'
 import {AsyncStorage} from 'react-native';
 import axios from 'axios';
@@ -46,6 +48,44 @@ function HomeScreen({route, navigation}) {
 
     const Tab = createBottomTabNavigator();
 
+    const offresData = [
+        {
+            "id": 1,
+            "name": "Développeur PHP",
+            "description": "Nous recherchons un développeur PHP avec au moins 3 ans d'expérience.",
+            "companyDescription": "Bonne ambiance.",
+            "startAt": "2020-05-13T09:58:30+00:00",
+            "workingPlace": "Paris"
+        },
+        {
+            "id": 2,
+            "name": "Développeur JS",
+            "description": "Nous recherchons un développeur JS avec au moins 5 ans d'expérience.",
+            "companyDescription": "Bonne ambiance.",
+            "startAt": "2020-05-13T09:58:30+00:00",
+            "workingPlace": "Rouen"
+        },
+        {
+            "id": 3,
+            "name": "Développeur C#",
+            "description": "Nous recherchons un développeur C# avec au moins 10 ans d'expérience.",
+            "companyDescription": "Bonne ambiance.",
+            "startAt": "2020-05-13T09:58:30+00:00",
+            "workingPlace": "Nancy"
+        }
+    ];
+
+    function Item({ name,  applies}) {
+        return (
+            <View style={{margin: 15, padding: 10}}>
+
+            <List.Item
+                title={name}
+            />
+            <Button icon={"message"} mode="contained" onPress={() => {navigation.navigate('OfferApplies', {offerApplies: applies})}}>Voir les candidats</Button>
+            </View>
+        );
+    }
 
     function Recruteur() {
         return <Tab.Navigator>
@@ -329,6 +369,18 @@ function HomeScreen({route, navigation}) {
     }
 
     function RecruteurOfferScreen() {
+
+        let mesOffres = <Text>Aucune offre</Text>;
+
+        if (offresData.length > 0)
+        {
+            mesOffres = <FlatList
+                            data={offresData}
+                            renderItem={({ item }) => <Item name={item.name} applies={['test']}/>}
+                            keyExtractor={item => item.id}
+                        />;
+        }
+
         return (
             <ScrollView>
                 <Appbar.Header>
@@ -342,7 +394,7 @@ function HomeScreen({route, navigation}) {
                     />
                 </Appbar.Header>
                 <View style={{paddingTop: 15, margin: 30}}>
-                    <Text>Mes offres</Text>
+                    {mesOffres}
                 </View>
             </ScrollView>
         );
