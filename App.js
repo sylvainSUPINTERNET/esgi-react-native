@@ -35,6 +35,7 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 import HomeScreen from "./screens/home.screen";
 import InvitationsScreen from "./screens/invitations.screen";
 import AuthScreen from "./screens/auth.screen";
+import OfferAppliesScreen from "./screens/offerApplies.screen";
 
 const Drawer = createDrawerNavigator();
 
@@ -51,6 +52,7 @@ const App: () => React$Node = () => {
                         <Drawer.Screen name="Authentication" component={AuthScreen} options={{ drawerLabel: 'Compte' }}/>
                         <Drawer.Screen name="Accueil" component={HomeScreen} options={{ drawerLabel: 'Dashboard' }}/>
                         <Drawer.Screen name="Invitations" component={InvitationsScreen}/>
+                        <Drawer.Screen name="OfferApplies" component={OfferAppliesScreen}/>
                     </Drawer.Navigator>
                 </NavigationContainer>
             </PaperProvider>
