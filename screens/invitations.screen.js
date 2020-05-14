@@ -119,7 +119,6 @@ function InvitationsScreen({navigation, route}) {
 
                 </Card.Content>
             </Card>
-
         );
     }
 
@@ -187,7 +186,6 @@ function InvitationsScreen({navigation, route}) {
                 </ScrollView>
             )
         }
-
     }
 
     const invCandidat = InvCandidatView();
@@ -203,9 +201,11 @@ function InvitationsScreen({navigation, route}) {
         navigation.navigate('Authentication')
     }
 
-    return (
 
+    return (
+        renderScreen
     );
 }
+
 
 export default InvitationsScreen;
