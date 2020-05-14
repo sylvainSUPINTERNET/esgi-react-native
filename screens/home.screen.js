@@ -2,6 +2,7 @@ import React from "react";
 
 import ImagePicker from 'react-native-image-picker';
 import DocumentPicker from 'react-native-document-picker';
+import RNFetchBlob from 'rn-fetch-blob'
 
 
 import {Text, View, ScrollView, ToastAndroid, Image} from "react-native";
@@ -865,6 +866,7 @@ function HomeScreen({route, navigation}) {
             const [photoFileName, setPhotoFileName] = React.useState("");
             const [photoType, setPhotoType] = React.useState("");
             const [photoAll, setPhotoAll] = React.useState("");
+            const [photob64, setPhotob64] = React.useState("");
 
 
             const [file, setFile] = React.useState(null);
@@ -921,8 +923,9 @@ function HomeScreen({route, navigation}) {
 
 
                 ImagePicker.showImagePicker(options, (response) => {
-                    console.log('Response = ', response);
-
+                    setPhotob64(response.data)
+                    //console.log('Response = ', response.data);
+                    //console.log("EKEKEZKEOAKEOAKO")
                     if (response.didCancel) {
                         console.log('User cancelled image picker');
                     } else if (response.error) {
@@ -937,7 +940,6 @@ function HomeScreen({route, navigation}) {
                         setPhotoType(response.type)
                         setPhotoUri(response.uri)
                         setPhotoAll(response);
-
 
                     }
                 });
@@ -1005,10 +1007,6 @@ function HomeScreen({route, navigation}) {
                 // Pick a single file
 
 
-                // TODO post d'une image + fichier ...
-                // TODO put la payload
-                // TODO refresh données
-
                 const t = await AsyncStorage.getItem('jwt');
                 if (t === null) {
                     setInputsEditable(true)
@@ -1024,16 +1022,62 @@ function HomeScreen({route, navigation}) {
                                 }
                             });
                         if (req.status === 200 || req.status === 201) {
-                            console.log("OK")
-                            // TODO _> update picture / cv SI nouveau
-                            setInputsEditable(true)
-                            setIsDisabledSub(false)
-                            setIsLoading(false)
-                            ToastAndroid.showWithGravity(
-                                "Mis à jour !",
-                                ToastAndroid.SHORT,
-                                ToastAndroid.CENTER
-                            );
+
+                            apiProcess().then( data => {
+                                setInputsEditable(true)
+                                setIsDisabledSub(false)
+                                setIsLoading(false)
+                                console.log("data", data)
+                                ToastAndroid.showWithGravity(
+                                    "Mis à jour !",
+                                    ToastAndroid.SHORT,
+                                    ToastAndroid.CENTER
+                                );
+                            }).catch( err => {
+                                console.log("error")
+                                setInputsEditable(true)
+                                setIsDisabledSub(false)
+                                setIsLoading(false)
+                                ToastAndroid.showWithGravity(
+                                    "Erreur de mise à jour",
+                                    ToastAndroid.SHORT,
+                                    ToastAndroid.CENTER
+                                );
+                            });
+                            /*if(photoUri !== "") {
+
+                                RNFetchBlob.fetch('POST', `${config.default.URL}/media_objects`, {
+                                    Authorization : "Bearer "+t,
+                                    'Content-Type' : 'multipart/form-data',
+                                }, [
+                                    { name : "test", filename : photoFileName, data: RNFetchBlob.wrap(photoUri)},
+                                    //{ name : 'photo', filename :  photoUri, type:photoType, file: RNFetchBlob.wrap(photoUri)},
+                                ]).then((resp) => {
+                                    console.log("RESP ", resp)
+                                    setInputsEditable(true)
+                                    setIsDisabledSub(false)
+                                    setIsLoading(false)
+                                    ToastAndroid.showWithGravity(
+                                        "Mis à jour !",
+                                        ToastAndroid.SHORT,
+                                        ToastAndroid.CENTER
+                                    );
+                                }).catch((err) => {
+                                    console.log("ERROR")
+                                    console.log(err)
+                                    setInputsEditable(true)
+                                    setIsDisabledSub(false)
+                                    setIsLoading(false)
+                                    ToastAndroid.showWithGravity(
+                                        "Une erreur pendant l'envoit de l'image",
+                                        ToastAndroid.SHORT,
+                                        ToastAndroid.CENTER
+                                    );
+                                })
+                            } else {
+
+                            }
+                        */
 
 
                         } else {
