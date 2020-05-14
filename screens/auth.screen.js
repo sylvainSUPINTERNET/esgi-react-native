@@ -399,11 +399,11 @@ function AuthScreen({navigation}) {
         </View>;
 
 
-        if (isLogin) {
-            formRender = loginForm
-        } else {
-            formRender = registerForm
-        }
+    if (isLogin) {
+        formRender = loginForm
+    } else {
+        formRender = registerForm
+    }
 
 
 

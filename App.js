@@ -47,8 +47,10 @@ const App: () => React$Node = () => {
             <PaperProvider theme={theme}>
                 <NavigationContainer>
                     <Drawer.Navigator initialRouteName="Authentication">
-                        <Drawer.Screen name="Authentication" component={AuthScreen}/>
-                        <Drawer.Screen name="Accueil" component={HomeScreen}/>
+
+
+                        <Drawer.Screen name="Authentication" component={AuthScreen} options={{ drawerLabel: 'Compte' }}/>
+                        <Drawer.Screen name="Accueil" component={HomeScreen} options={{ drawerLabel: 'Dashboard' }}/>
                         <Drawer.Screen name="Invitations" component={InvitationsScreen}/>
                         <Drawer.Screen name="OfferApplies" component={OfferAppliesScreen}/>
                     </Drawer.Navigator>

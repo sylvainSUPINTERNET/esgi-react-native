@@ -14,7 +14,7 @@ export const isLogged = async () => {
     } else {
         try {
             const me = await axios.post(`${config.default.URL}/me`, {token: t});
-            if(me.status ===200) {
+            if(me.status ===200 || me.status === 201) {
                 console.log("DATA", me.data);
                 return me.data[4].roles
             } else {
