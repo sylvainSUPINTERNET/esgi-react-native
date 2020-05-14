@@ -108,18 +108,17 @@ function InvitationsScreen({navigation, route}) {
         return (
             <Card style={{margin: 15, padding: 10}}>
                 <Card.Content>
-                <List.Item
-                    title={email}
-                    left={props => <List.Icon {...props} icon="account-arrow-right"/>}
-                />
+                    <List.Item
+                        title={email}
+                        left={props => <List.Icon {...props} icon="account-arrow-right"/>}
+                    />
 
-                <Button mode="contained" onPress={() => {
-                    sendInvit(email)
-                }} disabled={false}>Inviter</Button>
+                    <Button mode="contained" onPress={() => {
+                        sendInvit(email)
+                    }} disabled={false}>Inviter</Button>
 
                 </Card.Content>
             </Card>
-
         );
     }
 
@@ -187,7 +186,6 @@ function InvitationsScreen({navigation, route}) {
                 </ScrollView>
             )
         }
-
     }
 
     const invCandidat = InvCandidatView();
@@ -203,9 +201,11 @@ function InvitationsScreen({navigation, route}) {
         navigation.navigate('Authentication')
     }
 
-    return (
 
+    return (
+        renderScreen
     );
 }
+
 
 export default InvitationsScreen;
