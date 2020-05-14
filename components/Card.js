@@ -8,10 +8,12 @@ class Card extends Component
         applicant: PropTypes.object.isRequired
     };
 
-    formatName(firstname, lastname)
+
+    formatName(name)
     {
-        return firstname.charAt(0).toUpperCase() + firstname.slice(1) + ' ' + lastname.toUpperCase();
+        return name.charAt(0).toUpperCase() + name.slice(1);
     }
+
 
     render()
     {
@@ -19,7 +21,8 @@ class Card extends Component
 
         return (
             <View style={{backgroundColor: 'white', marginBottom: 5, marginLeft: 5, marginRight: 5, padding: 3, borderRadius: 5}}>
-                <Text>{this.formatName(applicant.firstname, applicant.name)}</Text>
+                <Text>{this.formatName(applicant.name)}</Text>
+                <Text>{applicant.email}</Text>
             </View>
         );
     }

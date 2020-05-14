@@ -20,7 +20,7 @@ class List extends Component
         );
 
         return (
-            <View style={{width: 150, backgroundColor: '#e3e4e6', marginRight: 10, borderRadius: 5, display: 'flex', flexDirection: 'column', height: 'auto', flexGrow: 0, overflowY: 'scroll'}}>
+            <View style={{width: 200, backgroundColor: '#e3e4e6', marginRight: 10, borderRadius: 5, display: 'flex', flexDirection: 'column', height: 'auto', flexGrow: 0, overflowY: 'scroll'}}>
                 <Text style={{padding: 5, fontWeight: 'bold'}}>{status}</Text>
                 <ScrollView>
                     {cards}

@@ -1,6 +1,6 @@
 import React from "react";
 
-import {Text, View, ScrollView, FlatList} from "react-native";
+import {Text, View, ScrollView, FlatList, AsyncStorage, ToastAndroid} from "react-native";
 import {Appbar, Button, TextInput, Divider, Checkbox, HelperText, List} from 'react-native-paper';
 import DatePicker from 'react-native-datepicker'
 
@@ -8,10 +8,67 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 import Board from '../components/Board';
 
+import axios from 'axios';
+
+import * as config from "../api/config";
+
 function OfferAppliesScreen({navigation, route}) {
 
-    // TODO -> user debra être mis dans le AsyncStorage en se basent sur les données du token
-    const [userRole, setUserRole] = React.useState("ROLE_RECRUTEUR");
+    const [data, setData] = React.useState([]);
+
+    async function api() {
+
+        try {
+            const t = await AsyncStorage.getItem('jwt');
+
+            if(t === null) {
+                navigation.navigate('Authentication')
+            } else {
+                console.log("oK")
+
+                const {offerApplies} = route.params;
+                const iri = encodeURIComponent(`/offers${offerApplies["id"]}`);
+
+                const req = await axios.get(`${config.default.URL}/applies?offer=${iri}`, {
+                    headers: {
+                        'Authorization': `Bearer ${t}`,
+                        'Content-type': 'application/json'
+                    }
+                });
+
+                if(req.status === 200 || req.status === 201) {
+                    console.log(req);
+                    console.log(`${config.default.URL}/applies?offer=${iri}`)
+                    console.log(iri)
+                    setData(req.data["hydra:member"]);
+                } else {
+                    ToastAndroid.showWithGravity(
+                        "Erreur réseaux, veuillez réessayer",
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                    );
+                }
+            }
+        } catch(e){
+            console.log(e)
+            ToastAndroid.showWithGravity(
+                "Erreur réseaux, veuillez réessayer",
+                ToastAndroid.SHORT,
+                ToastAndroid.CENTER
+            );
+        }
+
+    }
+    console.log(route.params)
+
+    React.useEffect( () => {
+        api()
+        console.log("called")
+    }, []);
+
+
+    console.log("DATA",data);
+
 
     // const applies = route.params;
     const applies = [
@@ -47,13 +104,51 @@ function OfferAppliesScreen({navigation, route}) {
         }
     ];
 
-    function screenContent({navigation})
-    {
+    console.log("LENGTH",data.length);
 
+    console.log(data);
+
+    if(data.length === 0) {
+        return (<ScrollView>
+            <Appbar.Header>
+                <Appbar.Action icon="menu" onPress={() => {
+                    navigation.openDrawer()
+                }}/>
+
+                <Appbar.Content
+                    title="Recruiter"
+                    subtitle="L'application pour les recruteurs !"
+                />
+            </Appbar.Header>
+            <View style={{
+                marginTop: 200, alignItems: 'center',
+                flex: 1,
+                justifyContent: 'center'
+            }}>
+                <Text>Pas d'offres pour le moment</Text>
+            </View>
+        </ScrollView>)
+    } else {
+        return (
+         <ScrollView>
+            <Appbar.Header>
+                <Appbar.Action icon="menu" onPress={() => {
+                    navigation.openDrawer()
+                }}/>
+
+                <Appbar.Content
+                    title="Recruiter"
+                    subtitle="L'application pour les recruteurs !"
+                />
+            </Appbar.Header>
+            <View style={{}}>
+                <Board applies={data} />
+            </View>
+        </ScrollView>)
     }
 
-    if (userRole === "ROLE_RECRUTEUR")
-    {
+
+    /*
         let content = <Text>Aucune candidature</Text>;
 
         if (applies.length > 0)
@@ -78,11 +173,7 @@ function OfferAppliesScreen({navigation, route}) {
                </View>
             </ScrollView>
         );
-    }
-    else
-    {
-        navigation.navigate('Authentication')
-    }
+     */
 }
 
 export default OfferAppliesScreen;

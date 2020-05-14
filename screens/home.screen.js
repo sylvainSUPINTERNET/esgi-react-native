@@ -4,7 +4,6 @@ import ImagePicker from 'react-native-image-picker';
 import DocumentPicker from 'react-native-document-picker';
 
 
-
 import {Text, View, ScrollView, ToastAndroid, Image} from "react-native";
 import {
     Appbar,
@@ -36,6 +35,9 @@ import {setDisabled} from "react-native/Libraries/LogBox/Data/LogBoxData";
 function HomeScreen({route, navigation}) {
 
     const [userRole, setUserRole] = React.useState("LOADING");
+
+
+    console.log(route.params);
 
     /*
     React.useEffect(async () => {
@@ -97,14 +99,16 @@ function HomeScreen({route, navigation}) {
     ];
 
 
-    function Item({ name,  applies}) {
+    function Item({name, applies}) {
         return (
             <View style={{margin: 15, padding: 10}}>
 
-            <List.Item
-                title={name}
-            />
-            <Button icon={"message"} mode="contained" onPress={() => {navigation.navigate('OfferApplies', {offerApplies: applies})}}>Voir les candidats</Button>
+                <List.Item
+                    title={name}
+                />
+                <Button icon={"message"} mode="contained" onPress={() => {
+                    navigation.navigate('OfferApplies', {offerApplies: applies})
+                }}>Voir les candidats</Button>
             </View>
         );
     }
@@ -411,17 +415,129 @@ function HomeScreen({route, navigation}) {
     }
 
     function RecruteurOfferScreen() {
+        const [myOffres, setMyOffres] = React.useState([]);
 
-        let mesOffres = <Text>Aucune offre</Text>;
+        function ItemOffer ({offer}) {
+            return (
+                <Card style={{margin: 15, padding: 10}}>
+                    <Card.Content>
+                        <List.Item
+                            title={offer.name}
+                            left={props => <List.Icon {...props} icon="book"/>}
+                        />
+
+                        <Button mode="contained" onPress={() => {navigation.navigate('OfferApplies', {offerApplies: offer})}} disabled={false}>Voir l'offre</Button>
+
+                    </Card.Content>
+                </Card>
+            )
+        }
+
+        async function api(){
+            try {
+                const t = await AsyncStorage.getItem("jwt");
+                if (t === null) {
+                    navigation.navigate('Authentication')
+                } else {
+                    const offres = await axios.get(`${config.default.URL}/offres`, {
+                        headers: {
+                            'Authorization': `Bearer ${t}`,
+                            'Content-type': 'application/json'
+                        }
+                    });
+
+
+                    if(offres.status === 200 || offres.status === 201) {
+                        setMyOffres(offres.data["hydra:member"]);
+                    } else {
+                        console.log("la")
+                        ToastAndroid.showWithGravity(
+                            "Une erreur est survenue.",
+                            ToastAndroid.SHORT,
+                            ToastAndroid.CENTER
+                        );
+                    }
+
+                    //console.log(offres.status);
+                    //console.log(offres.data)
+
+                }
+            } catch (e) {
+                ToastAndroid.showWithGravity(
+                    "Une erreur est survenue.",
+                    ToastAndroid.SHORT,
+                    ToastAndroid.CENTER
+                );
+            }
+        }
+
+        React.useEffect(() => {
+            api();
+        });
+        let mesOffres;
+
+        if(myOffres.length > 0) {
+                mesOffres =
+                    <FlatList
+                    data={myOffres}
+                    renderItem={({ item }) =>
+                        <ItemOffer offer={item}/>}
+                    keyExtractor={item => item.id}
+                />;
+        } else {
+            mesOffres =
+                <View style={{
+                    margin: 10,
+                    display: 'flex',
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                    <Text>Aucunes offres</Text>
+                </View>;
+        }
+
+
+
+        /*
+        const [myOffres, setMyOffres] = React.useState([]);
+
+        let mesOffres =
+            <View style={{    margin: 10,
+                display: 'flex',
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center'}}>
+                <Text>Aucunes offres</Text>
+            </View>;
+
 
         if (offresData.length > 0)
         {
+
+            try {
+                const t = AsyncStorage.getItem('jwt');
+                if(t === null) {
+
+                } else {
+                    navigation.navigate('Authentication')
+                }
+            } catch (e) {
+                ToastAndroid.showWithGravity(
+                    "Une erreur est survenue.",
+                    ToastAndroid.SHORT,
+                    ToastAndroid.CENTER
+                );
+            }
+
             mesOffres = <FlatList
                             data={offresData}
                             renderItem={({ item }) => <Item name={item.name} applies={['test']}/>}
                             keyExtractor={item => item.id}
                         />;
         }
+
+         */
 
         return (
             <ScrollView>
@@ -875,7 +991,7 @@ function HomeScreen({route, navigation}) {
                     payload["adresse"] = adresse;
                 }
 
-                if(firstname && firstname !== "") {
+                if (firstname && firstname !== "") {
                     payload["firstname"] = firstname;
                 }
 
@@ -887,7 +1003,6 @@ function HomeScreen({route, navigation}) {
                 payload["status"] = "updated";
 
                 // Pick a single file
-
 
 
                 // TODO post d'une image + fichier ...
@@ -908,7 +1023,7 @@ function HomeScreen({route, navigation}) {
                                     'Content-type': 'application/json'
                                 }
                             });
-                        if(req.status === 200 || req.status === 201) {
+                        if (req.status === 200 || req.status === 201) {
                             console.log("OK")
                             // TODO _> update picture / cv SI nouveau
                             setInputsEditable(true)
@@ -1019,7 +1134,7 @@ function HomeScreen({route, navigation}) {
 
                     <Card.Content>
                         <HelperText style={{marginTop: 10}}>
-                            {data.name === null ? '': data.name}
+                            {data.name === null ? '' : data.name}
                         </HelperText>
                         <TextInput style={{padding: 5, margin: 10}}
                                    label={'Votre nom'}
@@ -1033,7 +1148,7 @@ function HomeScreen({route, navigation}) {
                         />
 
                         <HelperText style={{marginTop: 10}}>
-                            {data.firstname === null ? '': data.firstname}
+                            {data.firstname === null ? '' : data.firstname}
                         </HelperText>
                         <TextInput style={{padding: 5, margin: 10}}
                                    label={'Votre prénom'}
@@ -1047,7 +1162,7 @@ function HomeScreen({route, navigation}) {
                         />
 
                         <HelperText style={{marginTop: 10}}>
-                            {data.email === null ? '': data.email}
+                            {data.email === null ? '' : data.email}
                         </HelperText>
                         <TextInput style={{padding: 5, margin: 10}}
                                    label={data.email === null ? 'Votre email' : data.email}
@@ -1075,7 +1190,7 @@ function HomeScreen({route, navigation}) {
                         </View>
 
                         <HelperText style={{marginTop: 10}}>
-                            {data.age === null ? '': data.age}
+                            {data.age === null ? '' : data.age}
                         </HelperText>
                         <TextInput style={{padding: 5, margin: 10}}
                                    label={'Votre age'}
@@ -1088,7 +1203,7 @@ function HomeScreen({route, navigation}) {
                         />
 
                         <HelperText style={{marginTop: 10}}>
-                            {data.adresse === null ? '': data.adresse}
+                            {data.adresse === null ? '' : data.adresse}
                         </HelperText>
                         <TextInput style={{padding: 5, margin: 10}}
                                    label={'Votre adresse'}
@@ -1100,7 +1215,7 @@ function HomeScreen({route, navigation}) {
                         />
 
                         <HelperText style={{marginTop: 10}}>
-                            {data.salary === null ? '': data.salary}
+                            {data.salary === null ? '' : data.salary}
                         </HelperText>
                         <TextInput style={{padding: 5, margin: 10}}
                                    label={'Votre salaire'}
@@ -1118,7 +1233,8 @@ function HomeScreen({route, navigation}) {
                             justifyContent: 'center'
                         }}>
                             <Text>Photo de profile</Text>
-                            <Image source={{uri: photoUri}} style={{height: 150, width: 150}}/>
+                            <Image/>
+                            <Card.Cover source={{uri: photoUri}} style={{height: 150, width: 150}}/>
                         </View>
 
                         <Button style={{margin: 10}} title="Photo" mode={"contained"} onPress={() => {
@@ -1126,13 +1242,14 @@ function HomeScreen({route, navigation}) {
                         }}>Photo de profil</Button>
 
                     </Card.Content>
-                    <Card.Cover source={{uri: 'https://picsum.photos/700'}}/>
-                    <Card.Cover source={{uri: 'https://picsum.photos/700'}}/>
+
                     <Card.Actions>
                         <View>
-                            <Button mode={'contained'} loading={isLoading} disabled={isDisabledSub} style={{marginTop: 10,alignItems: 'center',
+                            <Button mode={'contained'} loading={isLoading} disabled={isDisabledSub} style={{
+                                marginTop: 10, alignItems: 'center',
                                 flex: 1,
-                                justifyContent: 'center'}} onPress={() => {
+                                justifyContent: 'center'
+                            }} onPress={() => {
                                 submitUpdateProfil()
                             }}>Mettre à jour</Button>
                         </View>

@@ -24,6 +24,7 @@ function InvitationsScreen({navigation, route}) {
             if (t === null) {
                 navigation.navigate('Acceuil')
             } else {
+
                 const resp = await axios.get(`${config.default.URL}/users`, {
                     headers: {
                         'Authorization': `Bearer ${t}`,
