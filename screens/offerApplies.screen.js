@@ -1,7 +1,7 @@
 import React from "react";
 
 import {Text, View, ScrollView, FlatList, AsyncStorage, ToastAndroid} from "react-native";
-import {Appbar, Button, TextInput, Divider, Checkbox, HelperText, List} from 'react-native-paper';
+import {Appbar, Button, TextInput, Divider, Checkbox, HelperText, List, Card, Paragraph} from 'react-native-paper';
 import DatePicker from 'react-native-datepicker'
 
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -105,10 +105,15 @@ function OfferAppliesScreen({navigation, route}) {
     ];
 
     console.log("LENGTH",data.length);
+    console.log("------ - -- - -- - -- -")
+    console.log("------ - -- - -- - -- -")
+    console.log("------ - -- - -- - -- -")
+    console.log("------ - -- - -- - -- -")
 
     console.log(data);
+    console.log("------ - -- - -- - -- -")
 
-    if(data.length === 0) {
+    if(data.length <= 1) {
         return (<ScrollView>
             <Appbar.Header>
                 <Appbar.Action icon="menu" onPress={() => {
@@ -125,7 +130,11 @@ function OfferAppliesScreen({navigation, route}) {
                 flex: 1,
                 justifyContent: 'center'
             }}>
-                <Text>Pas d'offres pour le moment</Text>
+                <Card>
+                    <Card.Content>
+                        <Paragraph>Pas d'offres pour le moment</Paragraph>
+                    </Card.Content>
+                </Card>
             </View>
         </ScrollView>)
     } else {

@@ -474,10 +474,10 @@ function HomeScreen({route, navigation}) {
 
         React.useEffect(() => {
             api();
-        });
+        }, []);
         let mesOffres;
 
-        if(myOffres.length > 0) {
+        if(myOffres.length > 1) {
                 mesOffres =
                     <FlatList
                     data={myOffres}
