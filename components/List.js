@@ -14,7 +14,9 @@ class List extends Component
     render()
     {
         const { status, applicants } = this.props;
-
+        Object.keys(applicants).map(key =>
+        { console.log(" -----> L" ,applicants); }
+        );
         const cards = Object.keys(applicants).map(key =>
             <Card applicant={applicants[key]} />
         );

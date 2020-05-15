@@ -11,18 +11,23 @@ class Card extends Component
 
     formatName(name)
     {
-        return name.charAt(0).toUpperCase() + name.slice(1);
+        if(name !== null) {
+            return name.charAt(0).toUpperCase() + name.slice(1);
+        } else {
+            return 'en attente'
+        }
     }
+
 
 
     render()
     {
         const { applicant } = this.props;
+        console.log(applicant);
 
         return (
             <View style={{backgroundColor: 'white', marginBottom: 5, marginLeft: 5, marginRight: 5, padding: 3, borderRadius: 5}}>
                 <Text>{this.formatName(applicant.name)}</Text>
-                <Text>{applicant.email}</Text>
             </View>
         );
     }

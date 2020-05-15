@@ -29,6 +29,7 @@ class Board extends Component
             <List status={key} applicants={appliesByStatus[key]} />
         );
 
+        console.log("LIST ICI", lists)
         return (
             <ScrollView horizontal style={{display: 'flex', flexDirection: 'row', padding: 10, overflowX: 'scroll', width: '100%', boxSizing: 'border-box', maxHeight: 500}}>
                 {lists}

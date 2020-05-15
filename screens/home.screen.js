@@ -440,7 +440,10 @@ function HomeScreen({route, navigation}) {
                 if (t === null) {
                     navigation.navigate('Authentication')
                 } else {
-                    const offres = await axios.get(`${config.default.URL}/offres`, {
+                    const me = await axios.post(`${config.default.URL}/me`, {token: t});
+                    const encodedEmail = encodeURIComponent(me.data[2].email);
+                    console.log(`${config.default.URL}/offres?user.email=${encodedEmail}`)
+                    const offres = await axios.get(`${config.default.URL}/offres?user.email=${encodedEmail}`, {
                         headers: {
                             'Authorization': `Bearer ${t}`,
                             'Content-type': 'application/json'
@@ -474,10 +477,10 @@ function HomeScreen({route, navigation}) {
 
         React.useEffect(() => {
             api();
-        }, []);
+        },[]);
         let mesOffres;
 
-        if(myOffres.length > 1) {
+        if(myOffres.length > 0) {
                 mesOffres =
                     <FlatList
                     data={myOffres}

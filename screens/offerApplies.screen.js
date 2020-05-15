@@ -28,7 +28,6 @@ function OfferAppliesScreen({navigation, route}) {
 
                 const {offerApplies} = route.params;
                 const iri = encodeURIComponent(`/offers${offerApplies["id"]}`);
-
                 const req = await axios.get(`${config.default.URL}/applies?offer=${iri}`, {
                     headers: {
                         'Authorization': `Bearer ${t}`,
@@ -64,7 +63,7 @@ function OfferAppliesScreen({navigation, route}) {
     React.useEffect( () => {
         api()
         console.log("called")
-    }, []);
+    });
 
 
     console.log("DATA",data);
@@ -138,6 +137,7 @@ function OfferAppliesScreen({navigation, route}) {
             </View>
         </ScrollView>)
     } else {
+        console.log("ENTER ICI -------")
         return (
          <ScrollView>
             <Appbar.Header>
